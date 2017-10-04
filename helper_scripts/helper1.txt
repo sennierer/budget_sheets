@@ -1,0 +1,122 @@
+POST charity_index_1
+{
+"settings": {"number_of_shardes":1},
+"mappings": {
+    "pdfs":{
+        "properties": {
+            "institution": {
+                "type": "string","analyzer": "standard"
+        },
+        "year":{
+            "type": "integer"
+            
+        },
+        "id_data":{
+            "type": "integer","store": "yes"
+        },
+        "pdf_a":{
+            "type": "attachment",
+            "analyzer": "english", 
+            "fields": {
+                "file":{
+                    "term_vector":"with_positions_offsets",
+                    "store": true
+                },
+                "title":{
+                    "store": true,
+                }
+            }
+        }
+}
+}
+}
+}
+
+
+POST charity_index_3
+{
+"settings": {"number_of_shardes":1},
+"mappings": {
+    "pdfs":{
+        "properties": {
+            "institution": {
+                "type": "string","analyzer": "standard"
+        },
+        "year":{
+            "type": "integer"
+            
+        },
+        "id_data":{
+            "type": "integer","store": "yes"
+        },
+        "pdf_a":{
+            "type": "attachment",
+            "path": "full",
+            "fields": {
+                "pdf_a":{
+                    "type": "string",
+                    "term_vector":"with_positions_offsets",
+                    "store": true
+                }
+                }
+            }
+        }
+}
+}
+}
+
+PUT /charity_index_3/pdfs/1/
+{
+    "institution":"test1",
+    "pdf_a":{"_content":"IkdvZCBTYXZlIHRoZSBRdWVlbiIgKGFsdGVybmF0aXZlbHkgIkdvZCBTYXZlIHRoZSBLaW5nIg=="}
+}
+
+
+GET /charity_index_3/pdfs/_search
+{
+  "fields": ["institution","pdf_a"], 
+  "query": {
+    "match": {
+      "pdf_a": "king queen"
+    }
+  },
+  "highlight": {
+    "fields": {
+      "pdf_a": {
+      }
+    }
+  }
+}
+
+ for x in PdfsBudget.objects.all():
+...  while x.pk < 200:
+...   if x.downloaded:
+...    f_path=/opt/bath/pdfs_downloade     
+
+import os,sys
+HOST = 'http://localhost:9200'
+INDEX = 'charity_index_5'
+TYPE = 'pdfs'
+from budget_sheets.models import ExtractCharity,PdfsBudget
+TMP_FILE_NAME = 'temp_file'
+f_path = "/opt/charity_pdfs"
+f_path_down = "/opt/bath/pdfs_download"
+
+for x in PdfsBudget.objects.all():
+    if x.pk < 200:
+        if x.downloaded:
+            zz = f_path_down+'/'+x.file_name
+        else:
+            zz=f_path+'/'+x.file_name
+        try:   
+            file64=open(zz,'rb').read().encode("base64")
+            name = ExtractCharity.objects.get(regno=x.regno,subno='0').name
+            data = {'institution':name,'id_data':x.pk,'year':x.year,'pdf_a':{'_content':file64}}
+            f = open(TMP_FILE_NAME, 'w')
+            json.dump(data, f)
+            f.close()
+            cmd = 'curl -X POST "{}/{}/{}" -d @'.format(HOST,INDEX,TYPE) + TMP_FILE_NAME
+            print cmd
+            os.system(cmd)
+        except:
+            print("Could not open file: %s"%x.pk)

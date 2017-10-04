@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h3>Results search <u>{{search.name}}</u></h3>
+<table class="table">
+	<tr><td><b>Started</b></td><td>{{search.started}}</td></tr>
+	{% if search.Y_start %}
+	<tr><td><b>Start year</b></td><td>{{search.Y_start}}</td></tr>
+	{% endif %}
+	{% if search.Y_end %}
+	<tr><td><b>End year</b></td><td>{{search.Y_end}}</td></tr>
+	{% endif %}
+	<tr><td><b>Hits</b></td><td>{{search.hits.count}}</td></tr>
+	<tr><td><b>Progress</b></td><td>{% if search.progress == 1 %}Finished{% elif search.progress > 0 %}search.progress{% else %}scheduled{% endif %}</td></tr>
+</table>
+<hr/>
+<table id="resListsearch" class="tablesorter table table-hover">
+<thead>
+	<tr><th>PDF</th><th>Term</th><th>Snippet</th></tr>
+</thead>
+<tbody>
+{% for x,y in res2 %}
+<tr><td><a href="/budget_sheets/pdfs/{{y.file_name}}">{{y.regno}}/{{y.year}}</a></td><td>{{x.term.term}}</td><td>{{x.snippet}}</td></tr>
+{% endfor %}
+</tbody>
+</table>
+
+<div class="pagination">
+    <span class="step-links">
+        {% if res.has_previous %}
+            <a href="?page={{ res.previous_page_number }}">&lt;&lt;&nbsp;&nbsp;previous</a>
+        {% endif %}
+
+        <span class="current">
+            &nbsp;&nbsp;Page {{ res.number }} of {{ res.paginator.num_pages }}&nbsp;&nbsp;
+        </span>
+
+        {% if res.has_next %}
+            <a href="?page={{ res.next_page_number }}">next&nbsp;&nbsp;&gt;&gt;</a>
+        {% endif %}
+    </span>
+</div>
+<div class="form-inline" id="pageform">
+        <div class="form-group">
+        <div class="input-group">
+            <div class="input-group-addon">Go to page:</div>
+            <input type="text" class="form-control" id="pageToGo">
+            
+        </div>
+        </div>
+        {% if search_term %}
+        <button type="submit" class="btn btn-primary" onclick="gotopage2('{{search_term}}')">Go!</button>
+        {% else %}
+        <button type="submit" class="btn btn-primary" onclick="gotopage2(false)">Go!</button>
+        {% endif %}
+        </div>
+{% endblock %}

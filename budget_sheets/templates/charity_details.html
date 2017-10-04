@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h3>{{charity.name}} - Details</h3>
+<table class="table">
+<tr><td><b>Address</b></td><td>{{charity.add1}},&nbsp;{{charity.add2}},&nbsp;{{charity.postcode}}</td></tr>
+<tr><td><b>Area of benefits</b></td><td>{{charity.aob}}</td></tr>
+<tr><td><b>PDFs?</b></td><td>{% if charity.pdfs %}Yes{% else %}No{% endif %}</td></tr>
+</table>
+<hr>
+<h4>Flows of {{charity.name}}</h4>
+<table class="table table-hover">
+<tr><td><b>Type of flow</b></td><td><b>Currency</b></td><td><b>Amount</b></td><td><b>Rcipient/Donor</b></td><td><b>Edit results</b></td></tr>
+{% for rs in bud_flows %}
+<tr><td>{{rs.type_of_flow}}</td><td>{{rs.currency}}</td><td>{{rs.amount}}</td><td>{% if rs.regno_inst_rec %}<a href="budget_sheets/details_charity/{{rs.regno_inst_rec}}">{{rs.recip_don}}</a>{% else %}{{rs.recip_don}}{% endif %}</td><td><a href="/budget_sheets/pdfs/{{rs.file_name}}">Edit file</a></td></tr>
+{% endfor %}
+</table>
+<hr>
+<h4>Indirect flows of {{charity.name}}</h4>
+<table class="table table-hover">
+<tr><td><b>Regno</b></td><td><b>Type of flow</b></td><td><b>Currency</b></td><td><b>Amount</b></td><td><b>Edit results</b></td></tr>
+{% for rs in flows_3 %}
+<tr><td><a href="/budget_sheets/details_charity/{{rs.regno}}">{{rs.regno}}</a></td><td>{% if rs.type_of_flow == 'out' %}Income{% else %}Expenditure{% endif %}</td><td>{{rs.currency}}</td><td>{{rs.amount}}</td><td><a href="/budget_sheets/pdfs/{{rs.file_name}}">Edit file</a></td></tr>
+{% endfor %}
+</table>
+<hr>
+<h4>Connections to {{charity.name}} found in PDFs ({{s_resp.hits.total}} hits)</h4>
+<p>Please note that our pdfs index does not include all the PDFs. At the moment it holds all the PDFs actively included in the research and budget sheets of charities with more than 7.000.000 Pounds income/year dating back to 2010.</p>
+{% if s_resp.hits.total > 10 %}
+{% if page_previous %}
+<a href="?page={{ page_previous }}">previous</a>&nbsp;&nbsp;
+{% endif %}
+{% if page_next %}
+<a href="?page={{ page_next }}">next</a>
+{% endif %}
+{% endif %}
+<hr>
+{% for x in s_resp.hits.hits %}
+<h5><a href="/budget_sheets/details_charity/{{x.fields.regno}}">{{x.fields.institution.0}}</a></h5> <div class="snp_year">({{x.fields.year}}) - <a href="/budget_sheets/pdfs/{{x.fields.file_name}}">Edit file</a></div><br />
+{% for u in x.highlight.pdf_a %}
+<div class="search_snippet">{{u|safe}}</div><br />
+{% endfor %}
+<hr>
+{% endfor %}
+{% if s_resp.hits.total > 10 %}
+{% if page_previous %}
+<a href="?page={{ page_previous }}">previous</a>&nbsp;&nbsp;
+{% endif %}
+{% if page_next %}
+<a href="?page={{ page_next }}">next</a>
+{% endif %}
+{% endif %}
+
+{% endblock %}

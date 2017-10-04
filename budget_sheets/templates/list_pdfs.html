@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>List of pdfs - {{type}}</h2>
+<div id="pdf_list">
+
+	{% for x in chs %}
+	{% if x.not_interested %}
+	{% else %}
+	<div class="charity_block">
+		<h3 class="charity_name">{{x.name}}</h3>
+		<ul>
+		{% for z in pdfs %}
+			{% if z.regno == x.regno %}
+			<li><a href="/budget_sheets/pdfs/{{z.file_name}}">{{z.year}}</a></li>
+			{% endif %}
+		
+		{% endfor %}
+		</ul>
+	</div>
+	{% endif %}
+	{% endfor %}
+	
+</div>
+
+{% endblock %}

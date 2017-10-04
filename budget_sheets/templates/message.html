@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>{{ message }}</h1>
+
+<script>
+    function redirect(){
+       window.location.href = "{{redirect}}";
+    }
+
+    setTimeout(redirect, 2000); //2000 is equivalent to 2 seconds
+</script>
+
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% if form.errors %}
+        <p style="color: red;">
+            Please correct the error{{ form.errors|pluralize }} below.
+        </p>
+    {% endif %}
+
+    {% load crispy_forms_tags %}
+	{% crispy form form.helper %}
+{% for x in s_resp.hits.hits %}
+<h5><a href="/budget_sheets/details_charity/{{x.fields.regno}}">{{x.fields.institution.0}}</a></h5> <div class="snp_year">({{x.fields.year}}) - <a href="/budget_sheets/pdfs/{{x.fields.file_name}}">Edit file</a></div><br />
+{% for u in x.highlight.pdf_a %}
+<div class="search_snippet">{{u|safe}}</div><br />
+{% endfor %}
+<hr>
+{% endfor %}
+{% if s_resp.hits.total > 10 %}
+{% if page_previous %}
+<a href="?search={{searchterm}}&page={{ page_previous }}">previous</a>&nbsp;&nbsp;
+{% endif %}
+{% if page_next %}
+<a href="?search={{searchterm}}&page={{ page_next }}">next</a>
+{% endif %}
+{% endif %}
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+
+
+    {% if errors %}
+        <p style="color: red;">
+            Please correct the error{{ errors|pluralize }} below.
+        </p>
+    {% endif %}
+    <div id="pdf">
+  <object width="700" height="900" type="application/pdf" data="{{ filename }}" id="pdf_content">
+    <p>No pdf found.</p>
+  </object>
+</div>
+
+    {% load crispy_forms_tags %}
+
+    <form action="" method="POST">
+    <div id="form">
+    {% crispy form form.helper %}
+    </div>
+    <hr class="form1">
+    <div id="Form2">
+    <!--{% crispy formset helper %}-->
+    <button type="button" class="btn btn-zus btn-minimize_all">hide all Forms</button> <button type="button" class="btn btn-zus btn-show_all">show all Forms</button>
+    <hr class="form1">
+    {% for form in formset %}
+    
+    <div class="Formset1">
+    <button type="button" class="btn btn-zus btn-minimize_1">hide Form</button>
+    {% crispy form helper %}
+    </div>
+    {% endfor %}
+    {{ formset.management_form }}
+    </div>
+	<div class="form-actions">
+        <input type="submit" name="update" value="Update" class="btn btn-primary" id="submit-save">
+	</div>
+</form>
+<script type="text/javascript">
+//function minimize(){
+$('.btn-minimize_1').click(function(){
+$(this).parent().slideUp();
+});
+$('.btn-minimize_all').click(function(){
+$('.Formset1').slideUp();
+});
+$('.btn-show_all').click(function(){
+$('.Formset1').slideDown();
+});
+</script>
+{% endblock %}

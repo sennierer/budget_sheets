@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<h2>List of results</h2>
+
+{% load crispy_forms_tags %}
+{% crispy form form.helper %}
+<hr>
+<div id="results">
+{% if search_term %}
+<h5>{{nmb_res}} results for query "{{ search_term }}"</h5> -- <a href="/budget_sheets/list_results/">Reset search</a>
+{% endif %}
+<table class="table table-hover">
+<tr><td><b>Regno</b></td><td><b>Type of flow</b></td><td><b>Currency</b></td><td><b>Amount</b></td><td><b>Rcipient/Donor</b></td><td><b>Edit results</b></td></tr>
+{% for rs in flows2 %}
+<tr><td><a href="/budget_sheets/details_charity/{{rs.regno}}">{{rs.regno}}</a></td><td>{{rs.type_of_flow}}</td><td>{{rs.currency}}</td><td>{{rs.amount}}</td><td>{% if rs.regno_inst_rec %}<a href="/budget_sheets/details_charity/{{rs.regno_inst_rec}}">{{rs.recip_don}}</a>{% else %}{{rs.recip_don}}{% endif %}</td><td><a href="/budget_sheets/pdfs/{{rs.file_name}}">Edit file</a></td></tr>
+{% endfor %}
+</table>
+</div>
+<div class="pagination">
+    <span class="step-links">
+        {% if pagin.prev %}
+            {% if search_term %}
+                 <a href="?page={{ pagin.prev }}&q={{ search_term }}">&lt;&lt;&nbsp;&nbsp;previous</a>
+            {% else %}
+                <a href="?page={{ pagin.prev }}">&lt;&lt;&nbsp;&nbsp;previous</a>
+            {% endif %}
+            
+        {% endif %}
+
+        <span class="current">
+            &nbsp;&nbsp;Page {{ pagin.page }} of {{ pagin.tot_pages }}&nbsp;&nbsp;
+        </span>
+
+        {% if pagin.nxt %}
+            {% if search_term %}
+            <a href="?page={{ pagin.nxt }}&q={{search_term}}">next&nbsp;&nbsp;&gt;&gt;</a>
+            {% else %}
+            <a href="?page={{ pagin.nxt }}">next&nbsp;&nbsp;&gt;&gt;</a>
+            {% endif %}
+        {% endif %}
+    </span>
+</div>
+ <div class="form-inline" id="pageform">
+        <div class="form-group">
+        <div class="input-group">
+            <div class="input-group-addon">Go to page:</div>
+            <input type="text" class="form-control" id="pageToGo">
+            
+        </div>
+        </div>
+        {% if search_term %}
+        <button type="submit" class="btn btn-primary" onclick="gotopage2('{{search_term}}')">Go!</button>
+        {% else %}
+        <button type="submit" class="btn btn-primary" onclick="gotopage2(false)">Go!</button>
+        {% endif %}
+        </div>
+{% endblock %}

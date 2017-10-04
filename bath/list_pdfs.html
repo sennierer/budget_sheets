@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>List of pdfs</h2>
+<div id="pdf_list">
+
+	<ul>
+	{% for x in results %}
+		<li><a href="/budget_sheets/pdfs/{{x.filename}}">{{x.file_name}}</a></li>
+	{% endfor %}
+	</ul>
+</div>
+
+{% endblock %}

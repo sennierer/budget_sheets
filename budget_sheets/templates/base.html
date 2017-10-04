@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{% load static %}
+    <link rel="stylesheet" href="/static/user_style.css?{% now "U" %}" />
+    <title>{% block title %}CharityComm online tool v0.1{% endblock %}</title>
+   <!-- <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />-->
+    <script src="https://code.jquery.com/jquery-1.9.1.js"></script>
+    
+  <script src="{{ STATIC_URL }}jquery-ui-1.11.2/jquery-ui.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}jquery.formset.js?2"></script>
+
+  <!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="{% static "bootstrap/css/bootstrap.min.css" %}">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="{% static "bootstrap/css/bootstrap-theme.min.css" %}">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="{% static "bootstrap/js/bootstrap.min.js" %}"></script>
+
+
+  
+<script type="text/javascript">
+  $(function() {
+    $('.Formset1').formset();
+  })
+</script>
+<script type="text/javascript">
+function setGetParameter(paramName, paramValue, url1)
+{
+    var url = url1;
+    if (url.indexOf(paramName + "=") >= 0)
+    {
+        var prefix = url.substring(0, url.indexOf(paramName));
+        var suffix = url.substring(url.indexOf(paramName));
+        suffix = suffix.substring(suffix.indexOf("=") + 1);
+        suffix = (suffix.indexOf("&") >= 0) ? suffix.substring(suffix.indexOf("&")) : "";
+        url = prefix + paramName + "=" + paramValue + suffix;
+    }
+    else
+    {
+    if (url.indexOf("?") < 0)
+        url += "?" + paramName + "=" + paramValue;
+    else
+        url += "&" + paramName + "=" + paramValue;
+    }
+    return url;
+}
+</script>
+<script type="text/javascript">
+    function gotopage2(q){var a =$('#pageToGo').val();var b = a.toString();var z = setGetParameter('page',b,window.location.href);if (q != false){var z = setGetParameter('q',q,z);};window.location.href=z}
+</script>
+{% include 'autocomplete_light/static.html' %}
+</head>
+
+<body>
+<div id="container">
+    <div id="header"><h1>CharityComm online tool</h1>
+    </div>
+    <div id="sidebar">
+        {% block sidebar %}
+        <ul>
+            <li><a href="/budget_sheets/search">Search</a></li>
+            <li><a href="/budget_sheets/search_pdfs">Search PDFs</a></li>
+            <li><a href="/budget_sheets/search_pdfs_all">Search all PDFs</a></li>
+            <li><a href="/budget_sheets/list_pdfs">List todo</a></li>
+            <li><a href="/budget_sheets/list_finished_pdfs">List finished pdfs</a></li>
+            <li><a href="/budget_sheets/list_results">List results</a></li>
+        </ul>
+        {% endblock %}
+    </div>
+    <div id="content">
+        {% block content %}{% endblock %}
+    </div>
+    </div>
+</body>
+</html>

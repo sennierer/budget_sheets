@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style type="text/css">
+.form-actions {
+	margin-top: 24px;
+	float:left;
+}
+
+</style>
+
+
+    {% if form.errors %}
+        <p style="color: red;">
+            Please correct the error{{ form.errors|pluralize }} below.
+        </p>
+    {% endif %}
+
+    {% load crispy_forms_tags %}
+	{% crispy form form.helper %}
+
+	{% if results %}
+	<table>
+		{% for x in results %}
+			<tr><td>{{ x.regno }}</td><td>{{ x.name }}</td><td>{{ name.aob }}</td></tr>
+		{% empty %}
+			<tr><td>there seems to be a problem</td></tr>
+		{% endfor %}
+	</table>
+	{% endif %}
+
+	{% if formset %}
+	<form id='form2' action="/budget_sheets/update_data/" method="POST">
+	{% crispy formset helper %}
+	<div class="form-actions_2">
+        <input type="submit" name="update" value="Update" class="btn btn-primary" id="submit-save">
+	</div>
+</form>
+	{% endif %}
+
+
+
+{% endblock %}

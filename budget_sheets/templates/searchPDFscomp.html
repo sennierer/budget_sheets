@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block content %}
+<p>To search all pdfs we have downloaded so far we are - due to limited computer power - restricted to a non-indexed search. While the "<a href="/budget_sheets/search_pdfs">Search PDFs</a>" function relies on a search index and is therefore pretty fast, to search all pdfs every single file has to be opened and searched for the terms. As this is pretty slow and also slowing down the whole server we added the possibility to schedule searches. Searches added to the list down below are executed at 19pm UK time. If you check the 'Email?' check-box you will receive an email when the search is finished.</p><p>If you want to search for more than one term please use ';' as a delimiter. If you use space within a term the program searches for the whole phrase rather than both words. You can use the wildcard '*' within terms. Checking 'Start now?' will try to start the search immediately. Please note that there can only run one search process at a time, if there is already one running yours will be scheduled for later execution. Only scheduling a search gives others the possibility to add their searches.</p><p>Please note that due to the way the search works adding more searches and/or terms down below will not significantly slow down the search process. The slow part is opening every single pdf and extracting the text. Searching the text for the terms is pretty fast and therefore more terms will not slow down the process. However, not scheduling any searches ;) and limiting the years to search will.</p><p>So far we have 55.000+ PDFs downloaded from the charities commission. The search-script can search roughly 8.5 PDFs/minute. Therefor a search through our whole PDF-archive runs for about 4.5 days.</p>
+{% if searchFin %}
+<hr/>
+<div id="searchesPDFFin" class="searchesPDFcomp">
+<h4>Finished searches</h4>
+<table id="tabPDFcompFin" class="tablesorter table table-hover">
+<thead>
+	<tr><th>Title</th><th>Started</th><th>Terms</th><th>Hits</th></tr>
+</thead>
+<tbody>
+   {% for x in searchFin %}
+   <tr><td><a href="/budget_sheets/search_pdfs_all/{{x.pk}}">{{x.name}}</a></td><td>{{x.started}}</td><td>{% for z in x.search_terms.all %}{% if forloop.last %}{{z.term}}{% else %}{{z.term}},&nbsp;{% endif %}{% endfor %}</td><td>{{x.hits.all.count}}</td></tr>{% endfor %}
+</tbody>
+</table>
+</div>
+{% endif %}
+
+{% if searchRun %}
+<hr/>
+<div id="searchesPDFRun" class="searchesPDFcomp">
+<h4>Running searches</h4>
+<table id="tabPDFcompRun" class="tablesorter table table-hover">
+<thead>
+	<tr><th>Title</th><th>Started</th><th>Terms</th><th>Progress</th><th>Hits</th></tr>
+</thead>
+<tbody>
+   {% for x in searchRun %}
+   <tr><td><a href="/budget_sheets/search_pdfs_all/{{x.pk}}">{{x.name}}</a></td><td>{{x.started}}</td><td>{% for z in x.search_terms.all %}{% if forloop.last %}{{z.term}}{% else %}{{z.term}},&nbsp;{% endif %}{% endfor %}</td><td>{{x.progress}}</td><td>{{x.hits.all.count}}</td></tr>{% endfor %}
+</tbody>
+</table>
+</div>
+{% endif %}
+
+<hr/>
+<div id="searchesPDFplan" class="searchesPDFcomp">
+<h4>Scheduled searches</h4>
+<table id="tabPDFcompPlan" class="tablesorter table table-hover">
+<thead>
+	<tr><th>Title</th><th>Terms</th><th>Years</th><th>~min to run</th><th>Delete</th></tr>
+</thead>
+<tbody>
+   {% for x in searchPlan %}
+   <tr id="tab_{{x.pk}}"><td><a href="/budget_sheets/search_pdfs_all/{{x.pk}}">{{x.name}}</a></td><td>{% for z in x.search_terms.all %}{% if forloop.last %}{{z.term}}{% else %}{{z.term}},&nbsp;{% endif %}{% endfor %}</td><td>{% if x.Y_start and x.Y_end %}{% if x.Y_start == x.Y_end %}{{x.Y_start}}{% else %}{{x.Y_start}}-{{x.Y_end}}{% endif %}{% else %}{% if x.Y_start %}{{x.Y_start}}-today{% else %}{% if x.Y_end %}beginning-{{x.Y_end}}{% else %}complete data{% endif %}{% endif %}{% endif %}</td><td>{{x.minutes}}</td><td><button type="button" id="triggerFollow" class="btn btn-danger btn-xs" onclick="deleteSearch({{x.pk}})">Delete</button></td></tr>{% endfor %}
+</tbody>
+</table>
+</div>
+<hr/>
+<div id="searchPDFsform">
+	<form class="form">
+  <div class="form-group col-xs-4">
+    <label class="control-label" for="SName">Name</label>
+    <input type="text" class="form-control" id="SName" placeholder="Search 1">
+  </div>
+  <div id="FGYears" class="form-group col-xs-4">
+    <label class="control-label" for="Years">Years</label>
+    <input type="text" class="form-control" id="SYears" placeholder="'2013' or '-2013' or '2013-2014'">
+  </div>
+  <div id="emailForm" class="checkbox form-group col-xs-4">
+    <label>
+      <input id="SEmail" type="checkbox"> Email?
+    </label>
+  </div>
+  <div id="startNow" class="checkbox form-group col-xs-4">
+    <label>
+      <input id="SNow" type="checkbox"> Start now?
+    </label>
+  </div>
+  <div class="form-group STerms col-xs-8">
+    <label class="control-label" for="STerms">Terms</label>
+    <input type="text" class="form-control" id="STerms" placeholder="Use ';' as delimiter">
+  </div>
+  <div class="btnSearchTerms col-xs-8">
+  <button type="button" class="btn btn-default" onclick="scheduleSearch()">Schedule search</button>
+  </div>
+  
+</form>
+
+</div>
+<script type="text/javascript">
+function scheduleSearch(){
+	var Sname = $('#SName').val();
+	var Syears = $('#SYears').val();
+	var Sterms = $('#STerms').val();
+  var Semail = $('#SEmail').prop('checked');
+  var Snow = $('#SNow').prop('checked');
+  var PattYears = new RegExp("^(|[0-9]{4}|-[0-9]{4}|[0-9]{4}-|[0-9]{4}-[0-9]{4})$")
+  if (PattYears.test(Syears)) {
+    $('#FGYears').removeClass('has-error');
+    $('#FGYears label').text('Years');
+} else {
+    $('#FGYears').addClass('has-error');
+    $('#FGYears label').text('Please provide a valid time frame!');
+    return;
+  };
+	
+$.ajax({
+      url: '/budget_sheets/search_pdfs_all/',
+      type: 'POST',
+      dataType: 'json',
+      data: {
+        Sname:Sname,
+        Syears:Syears,
+        Sterms:Sterms,
+        Sdelete:false,
+        Semail:Semail,
+        Snow:Snow,
+        csrfmiddlewaretoken: '{{ csrf_token }}'
+      },
+      success: function(res) {
+      	if (res.worked) {console.log('yes');
+      		$('#SName').val('');
+      		$('#SYears').val('');
+      		$('#STerms').val('');
+          $('#SEmail').prop('checked',false);
+          $('#SNow').prop('checked',false);
+      		$('#tabPDFcompPlan tbody').append('<tr id="tab_'+res.id+'"><td><a href="/budget_sheets/search_pdfs_all/'+res.id+'">'+res.name2+'</a></td><td>'+res.terms+'</td><td>'+res.years+'</td><td>'+res.minutes+'</td><td><button type="button" id="triggerFollow" class="btn btn-danger btn-xs" onclick="deleteSearch('+res.id+')">Delete</button></td></tr>');
+
+      } 
+        
+    }
+})}
+</script>
+<script type="text/javascript">
+function deleteSearch(id){
+$.ajax({
+      url: '/budget_sheets/search_pdfs_all/',
+      type: 'POST',
+      dataType: 'json',
+      data: {
+        Sid:id,
+        Sdelete:true,
+        csrfmiddlewaretoken: '{{ csrf_token }}'
+      },
+      success: function(res) {
+      	if (res.worked) {
+      		$('#tab_'+res.id).remove();
+
+      } 
+        
+    }
+})}
+</script>
+{% endblock %}

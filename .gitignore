@@ -1,0 +1,10 @@
+search_tmp/
+submits.log
+warnings_downl_pdfs.log
+pdfs_download/
+.DS_Store
+*.pyc
+__pycache__/
+migrations/
+settings.py
+static/
